@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   lint-and-format:
@@ -21,18 +19,14 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint black autoflake
         pip install isort[requirements_deprecated_finder,pipfile_deprecated_finder]
+        pip install pylint
         pip install -r requirements.txt
-    - name: Run Black
-      run: black *.py
+    - name: Run isort
+      run: isort *.py
     - name: Push changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-         commit_message: 'Apply Black formatting'
-    - name: Run AutoFlake
-      run: autoflake --in-place --remove-unused-variables --remove-all-unused-imports --recursive *.py
-    - name: Push changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: 'Apply Autoflake formatting'
+        commit_message: 'Apply isort formatting'
+    - name: Run Pylint
+      run: pylint --fail-under=-200 *.py
